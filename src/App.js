@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import AdminDashboard from "./pages/AdminDashboard";
+import CreateOffer from "./pages/CreateOffer";
+import OnboardingForm from "./pages/OnboardingForm";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Default Redirect */}
+        <Route path="/" element={<Navigate to="/admin" />} />
+
+        {/* Admin Pages */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/create-offer" element={<CreateOffer />} />
+
+        {/* Candidate Onboarding */}
+        <Route path="/onboarding/:id" element={<OnboardingForm />} />
+
+        {/* 404 */}
+        <Route path="*" element={<h2 style={{ padding: 40 }}>404 Page Not Found</h2>} />
+      </Routes>
+    </Router>
   );
 }
 
