@@ -17,21 +17,23 @@ export default function OnboardingForm() {
   const canvasRef = useRef(null);
   const signaturePadRef = useRef(null);
 
-  // Fetch Offer Details
+  // ✅ FIXED: fetchOffer moved inside useEffect
   useEffect(() => {
-    fetchOffer();
-  }, []);
+    const fetchOffer = async () => {
+      try {
+        const res = await axios.get(`${API}/api/offers/${offerId}`);
+        setOffer(res.data);
+      } catch (error) {
+        console.error("Error fetching offer:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchOffer = async () => {
-    try {
-      const res = await axios.get(`${API}/api/offers/${offerId}`);
-      setOffer(res.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching offer:", error);
-      setLoading(false);
+    if (offerId) {
+      fetchOffer();
     }
-  };
+  }, [offerId]);
 
   // Initialize Signature Pad
   useEffect(() => {
@@ -41,7 +43,9 @@ export default function OnboardingForm() {
   }, []);
 
   const clearSignature = () => {
-    signaturePadRef.current.clear();
+    if (signaturePadRef.current) {
+      signaturePadRef.current.clear();
+    }
   };
 
   const handleSubmit = async () => {
@@ -64,9 +68,9 @@ export default function OnboardingForm() {
     } catch (error) {
       console.error("Submit error:", error);
       alert("Error submitting onboarding");
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
