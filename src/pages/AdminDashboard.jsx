@@ -30,9 +30,10 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchOffers();
-  }, []);
+ useEffect(() => {
+  fetchOffer();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   // =========================
   // Handle Form Change
