@@ -13,20 +13,25 @@ export default function OnboardingForm() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!offerId) return;
+
     const fetchOffer = async () => {
       try {
+        console.log("Calling API:", `${API}/api/offers/${offerId}`);
+
         const res = await axios.get(`${API}/api/offers/${offerId}`);
+
+        console.log("API Response:", res.data);
+
         setOffer(res.data.data);
       } catch (err) {
-        console.error("Error fetching offer:", err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    if (offerId) {
-      fetchOffer();
-    }
+    fetchOffer();
   }, [offerId]);
 
   if (loading) {
@@ -42,9 +47,9 @@ export default function OnboardingForm() {
       <h2>Candidate Onboarding</h2>
 
       <p><strong>Name:</strong> {offer.candidate_name}</p>
-      <p><strong>Designation:</strong> {offer.designation}</p>
       <p><strong>Email:</strong> {offer.email}</p>
       <p><strong>Mobile:</strong> {offer.mobile}</p>
+      <p><strong>Designation:</strong> {offer.designation}</p>
       <p><strong>Salary:</strong> {offer.salary}</p>
       <p><strong>Location:</strong> {offer.work_location}</p>
       <p><strong>Joining Date:</strong> {offer.date_of_joining}</p>
