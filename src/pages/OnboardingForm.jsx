@@ -38,13 +38,14 @@ export default function OnboardingForm() {
   const canvasRef = useRef(null);
   const signatureRef = useRef(null);
 
+  // ================= FETCH OFFER =================
   useEffect(() => {
     const fetchOffer = async () => {
       try {
         const res = await axios.get(`${API}/api/offers/${offerId}`);
         setOffer(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
@@ -52,11 +53,34 @@ export default function OnboardingForm() {
     fetchOffer();
   }, [offerId]);
 
+  // ================= SIGNATURE INIT (FIXED) =================
   useEffect(() => {
-    if (canvasRef.current) {
-      signatureRef.current = new SignaturePad(canvasRef.current);
-    }
-  }, []);
+    if (!locked) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resizeCanvas = () => {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = 200 * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+    };
+
+    resizeCanvas();
+
+    signatureRef.current = new SignaturePad(canvas, {
+      penColor: "black",
+      minWidth: 1,
+      maxWidth: 2.5,
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [locked]);
 
   const handleChange = (e) => {
     setJoiningDetails({
@@ -81,7 +105,9 @@ export default function OnboardingForm() {
   };
 
   const clearSignature = () => {
-    signatureRef.current.clear();
+    if (signatureRef.current) {
+      signatureRef.current.clear();
+    }
   };
 
   const handleSubmit = async () => {
@@ -90,7 +116,7 @@ export default function OnboardingForm() {
       return;
     }
 
-    if (signatureRef.current.isEmpty()) {
+    if (!signatureRef.current || signatureRef.current.isEmpty()) {
       alert("Please provide digital signature.");
       return;
     }
@@ -115,7 +141,7 @@ export default function OnboardingForm() {
       alert("Onboarding submitted successfully!");
       window.location.reload();
     } catch (err) {
-      console.error(err);
+      console.error("Submit error:", err);
       alert("Submission failed.");
     }
 
@@ -127,16 +153,18 @@ export default function OnboardingForm() {
 
   return (
     <div style={{ padding: 40 }}>
-      <h2>Employee Onboarding v99 TEST</h2>
+      <h2>Employee Onboarding</h2>
 
+      {/* ================= OFFER DETAILS ================= */}
       <h3>Offer Details</h3>
-      <p>Name: {offer.candidate_name}</p>
-      <p>Email: {offer.email}</p>
-      <p>Designation: {offer.designation}</p>
-      <p>Salary: ₹{offer.salary}</p>
+      <p><strong>Name:</strong> {offer.candidate_name}</p>
+      <p><strong>Email:</strong> {offer.email}</p>
+      <p><strong>Designation:</strong> {offer.designation}</p>
+      <p><strong>Salary:</strong> ₹{offer.salary}</p>
 
       <hr />
 
+      {/* ================= JOINING DETAILS ================= */}
       <h3>Joining Details</h3>
 
       <input name="father_name" placeholder="Father Name" onChange={handleChange} disabled={locked} /><br /><br />
@@ -160,12 +188,16 @@ export default function OnboardingForm() {
       <input name="passing_year" placeholder="Passing Year" onChange={handleChange} disabled={locked} /><br /><br />
 
       {!locked && (
-        <button onClick={lockDetails}>Lock Details & Proceed to Signature</button>
+        <button onClick={lockDetails}>
+          Lock Details & Proceed to Signature
+        </button>
       )}
 
       <hr />
 
+      {/* ================= DOCUMENT UPLOAD ================= */}
       <h3>Upload Documents</h3>
+
       <label>Aadhaar Card</label><br />
       <input type="file" name="aadhaar" onChange={handleFileChange} /><br /><br />
 
@@ -181,12 +213,25 @@ export default function OnboardingForm() {
       <label>Signed Appointment Letter</label><br />
       <input type="file" name="signedAppointment" onChange={handleFileChange} /><br /><br />
 
+      {/* ================= SIGNATURE ================= */}
       {locked && (
         <>
           <h3>Digital Signature</h3>
-          <canvas ref={canvasRef} width={500} height={200} style={{ border: "1px solid black" }} />
+
+          <canvas
+            ref={canvasRef}
+            style={{
+              width: "100%",
+              height: "200px",
+              border: "2px solid #333",
+              borderRadius: "6px",
+              backgroundColor: "#fff",
+            }}
+          />
+
           <br />
           <button onClick={clearSignature}>Clear</button>
+
           <br /><br />
           <button onClick={handleSubmit} disabled={submitting}>
             {submitting ? "Submitting..." : "Final Submit"}
