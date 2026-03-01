@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-const API = process.env.REACT_APP_API_URL;
+const API =
+  process.env.REACT_APP_API_URL?.trim() ||
+  "https://hr-onboarding-system-1.onrender.com";
 
 export default function OnboardingForm() {
   const { offerId } = useParams();
