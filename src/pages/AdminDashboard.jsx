@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   };
 
  useEffect(() => {
-  fetchOffer();
+  fetchOffers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
