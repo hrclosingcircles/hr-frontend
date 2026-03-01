@@ -21,7 +21,7 @@ function AdminDashboard() {
   const fetchOffers = async () => {
     try {
       const res = await axios.get(`${API}/api/offers`);
-      setOffers(res.data.data);
+      setOffers(res.data.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -42,9 +42,9 @@ function AdminDashboard() {
       const res = await axios.post(`${API}/api/offers/create`, form);
 
       if (res.data.success) {
-        // ✅ USE BACKEND GENERATED LINK
-        setGeneratedLink(res.data.onboarding_link);
-
+        // 🔥 Generate link from current frontend domain
+        const link = `${window.location.origin}/onboarding/${res.data.offer_id}`;
+        setGeneratedLink(link);
         fetchOffers();
       }
     } catch (err) {
