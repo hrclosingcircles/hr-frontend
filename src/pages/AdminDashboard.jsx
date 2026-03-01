@@ -1,121 +1,61 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const API = process.env.REACT_APP_API_URL;
 
-export default function AdminDashboard() {
-  const [offers, setOffers] = useState([]);
-  const [generatedLink, setGeneratedLink] = useState("");
+export default function OnboardingForm() {
+  const { offerId } = useParams();
 
-  const [form, setForm] = useState({
-    candidate_name: "",
-    email: "",
-    mobile: "",
-    designation: "",
-    salary: "",
-    work_location: "",
-    date_of_joining: "",
-    employment_type: "Full Time",
-  });
+  const [offer, setOffer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // =========================
-  // Fetch All Offers
+  // FETCH OFFER (CI SAFE VERSION)
   // =========================
-  const fetchOffers = async () => {
-    try {
-      const res = await axios.get(`${API}/api/offers`);
-      setOffers(res.data.data || []);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
-
- useEffect(() => {
-  fetchOffers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-
-  // =========================
-  // Handle Form Change
-  // =========================
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // =========================
-  // Create Offer
-  // =========================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await axios.post(`${API}/api/offers/create`, form);
-
-      if (res.data.success) {
-        // 🔥 ALWAYS USE CURRENT DOMAIN (NO LOCALHOST EVER)
-        const productionLink = `${window.location.origin}/onboarding/${res.data.offer_id}`;
-
-        setGeneratedLink(productionLink);
-
-        // Reset form
-        setForm({
-          candidate_name: "",
-          email: "",
-          mobile: "",
-          designation: "",
-          salary: "",
-          work_location: "",
-          date_of_joining: "",
-          employment_type: "Full Time",
-        });
-
-        fetchOffers();
+  useEffect(() => {
+    const fetchOffer = async () => {
+      try {
+        const res = await axios.get(`${API}/api/offers/${offerId}`);
+        setOffer(res.data.data);
+      } catch (err) {
+        console.error("Error fetching offer:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Create error:", err);
+    };
+
+    if (offerId) {
+      fetchOffer();
     }
-  };
+  }, [offerId]);
 
+  // =========================
+  // LOADING STATE
+  // =========================
+  if (loading) {
+    return <div style={{ padding: 40 }}>Loading...</div>;
+  }
+
+  if (!offer) {
+    return <div style={{ padding: 40 }}>Offer not found.</div>;
+  }
+
+  // =========================
+  // UI
+  // =========================
   return (
-    <div style={{ padding: 30 }}>
-      <h2>HR Admin Dashboard</h2>
+    <div style={{ padding: 40 }}>
+      <h2>Candidate Onboarding</h2>
 
-      {/* ================= FORM ================= */}
-      <form onSubmit={handleSubmit}>
-        <input name="candidate_name" placeholder="Candidate Name" value={form.candidate_name} onChange={handleChange} required />
-        <input name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input name="mobile" placeholder="Mobile" value={form.mobile} onChange={handleChange} required />
-        <input name="designation" placeholder="Designation" value={form.designation} onChange={handleChange} required />
-        <input name="salary" placeholder="Salary" value={form.salary} onChange={handleChange} required />
-        <input name="work_location" placeholder="Location" value={form.work_location} onChange={handleChange} required />
-        <input type="date" name="date_of_joining" value={form.date_of_joining} onChange={handleChange} required />
-
-        <button type="submit" style={{ marginTop: 10 }}>
-          Generate Link
-        </button>
-      </form>
-
-      {/* ================= GENERATED LINK ================= */}
-      {generatedLink && (
-        <div style={{ marginTop: 20 }}>
-          <strong>Link:</strong>
-          <br />
-          <a href={generatedLink} target="_blank" rel="noreferrer">
-            {generatedLink}
-          </a>
-        </div>
-      )}
-
-      {/* ================= OFFERS LIST ================= */}
-      <div style={{ marginTop: 40 }}>
-        <h3>Total: {offers.length}</h3>
-
-        {offers.map((offer) => (
-          <div key={offer.id} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
-            <strong>{offer.candidate_name}</strong> – {offer.status}
-          </div>
-        ))}
-      </div>
+      <p><strong>Name:</strong> {offer.candidate_name}</p>
+      <p><strong>Designation:</strong> {offer.designation}</p>
+      <p><strong>Email:</strong> {offer.email}</p>
+      <p><strong>Mobile:</strong> {offer.mobile}</p>
+      <p><strong>Salary:</strong> {offer.salary}</p>
+      <p><strong>Location:</strong> {offer.work_location}</p>
+      <p><strong>Joining Date:</strong> {offer.date_of_joining}</p>
+      <p><strong>Status:</strong> {offer.status}</p>
     </div>
   );
 }
