@@ -23,7 +23,7 @@ export default function OnboardingForm() {
 
         console.log("API Response:", res.data);
 
-        setOffer(res.data.data);
+        setOffer(res.data);
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
