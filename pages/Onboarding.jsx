@@ -3,7 +3,9 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import SignaturePad from "signature_pad";
 
-const API = process.env.REACT_APP_API_URL;
+const API =
+  process.env.REACT_APP_API_URL ||
+  "https://hr-onboarding-system-1.onrender.com";
 
 export default function OnboardingForm() {
   const { offerId } = useParams();
