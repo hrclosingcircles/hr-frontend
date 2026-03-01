@@ -12,7 +12,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
 
         {/* Candidate Onboarding */}
-        <Route path="/onboarding/:offer_id" element={<OnboardingForm />} />
+        <Route path="/onboarding/:offerId" element={<OnboardingForm />} />
 
         {/* Default Route */}
         <Route path="*" element={<AdminDashboard />} />
