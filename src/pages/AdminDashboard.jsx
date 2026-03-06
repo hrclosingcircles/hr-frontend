@@ -9,6 +9,18 @@ export default function AdminDashboard() {
 
   const [employees, setEmployees] = useState([]);
 
+  const [form, setForm] = useState({
+    candidate_name: "",
+    email: "",
+    mobile: "",
+    designation: "",
+    salary: "",
+    work_location: "",
+    date_of_joining: ""
+  });
+
+  const [generatedLink, setGeneratedLink] = useState("");
+
   useEffect(() => {
     loadEmployees();
   }, []);
@@ -22,9 +34,73 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const createOffer = async () => {
+    try {
+
+      const res = await axios.post(`${API}/api/offers/create`, form);
+
+      setGeneratedLink(res.data.onboarding_link);
+
+      alert("Offer Created Successfully");
+
+      loadEmployees();
+
+    } catch (err) {
+      console.error(err);
+      alert("Offer creation failed");
+    }
+  };
+
   return (
     <div style={{ padding: 40 }}>
       <h2>HR Admin Dashboard</h2>
+
+      {/* ================= OFFER CREATION FORM ================= */}
+
+      <h3>Create Offer</h3>
+
+      <input name="candidate_name" placeholder="Candidate Name" onChange={handleChange} />
+      <br /><br />
+
+      <input name="email" placeholder="Email" onChange={handleChange} />
+      <br /><br />
+
+      <input name="mobile" placeholder="Mobile" onChange={handleChange} />
+      <br /><br />
+
+      <input name="designation" placeholder="Designation" onChange={handleChange} />
+      <br /><br />
+
+      <input name="salary" placeholder="Salary" onChange={handleChange} />
+      <br /><br />
+
+      <input name="work_location" placeholder="Location" onChange={handleChange} />
+      <br /><br />
+
+      <input type="date" name="date_of_joining" onChange={handleChange} />
+      <br /><br />
+
+      <button onClick={createOffer}>Generate Offer Link</button>
+
+      {generatedLink && (
+        <>
+          <h4>Generated Link:</h4>
+          <a href={generatedLink} target="_blank" rel="noreferrer">
+            {generatedLink}
+          </a>
+        </>
+      )}
+
+      <hr />
+
+      {/* ================= EMPLOYEE TABLE ================= */}
 
       <h3>Total Employees: {employees.length}</h3>
 
