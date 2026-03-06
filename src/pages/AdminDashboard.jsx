@@ -7,16 +7,16 @@ const API =
 
 export default function AdminDashboard() {
 
-  const [offers, setOffers] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
-    fetchOffers();
+    loadEmployees();
   }, []);
 
-  const fetchOffers = async () => {
+  const loadEmployees = async () => {
     try {
       const res = await axios.get(`${API}/api/offers`);
-      setOffers(res.data.data);
+      setEmployees(res.data.data);
     } catch (err) {
       console.error(err);
     }
@@ -26,7 +26,9 @@ export default function AdminDashboard() {
     <div style={{ padding: 40 }}>
       <h2>HR Admin Dashboard</h2>
 
-      <table border="1" cellPadding="10" style={{ width: "100%", marginTop: 20 }}>
+      <h3>Total Employees: {employees.length}</h3>
+
+      <table border="1" cellPadding="10" style={{ width: "100%" }}>
         <thead>
           <tr>
             <th>Name</th>
@@ -34,7 +36,7 @@ export default function AdminDashboard() {
             <th>Mobile</th>
             <th>Designation</th>
             <th>Status</th>
-            <th>Father Name</th>
+            <th>Father</th>
             <th>Bank</th>
             <th>IFSC</th>
             <th>Emergency</th>
@@ -46,45 +48,62 @@ export default function AdminDashboard() {
         </thead>
 
         <tbody>
-          {offers.map((o) => (
-            <tr key={o.id}>
-              <td>{o.candidate_name}</td>
-              <td>{o.email}</td>
-              <td>{o.mobile}</td>
-              <td>{o.designation}</td>
-              <td>{o.status}</td>
-              <td>{o.father_name}</td>
-              <td>{o.bank_name}</td>
-              <td>{o.ifsc}</td>
-              <td>{o.emergency_contact}</td>
+          {employees.map((emp) => (
+            <tr key={emp.id}>
+              <td>{emp.candidate_name}</td>
+              <td>{emp.email}</td>
+              <td>{emp.mobile}</td>
+              <td>{emp.designation}</td>
+              <td>{emp.status}</td>
+
+              <td>{emp.father_name}</td>
+              <td>{emp.bank_name}</td>
+              <td>{emp.ifsc}</td>
+              <td>{emp.emergency_contact}</td>
 
               <td>
-                {o.aadhaar && (
-                  <a href={`${API}/uploads/${o.aadhaar}`} target="_blank">
+                {emp.aadhaar && (
+                  <a
+                    href={`${API}/uploads/${emp.aadhaar}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     View
                   </a>
                 )}
               </td>
 
               <td>
-                {o.pan && (
-                  <a href={`${API}/uploads/${o.pan}`} target="_blank">
+                {emp.pan && (
+                  <a
+                    href={`${API}/uploads/${emp.pan}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     View
                   </a>
                 )}
               </td>
 
               <td>
-                {o.photo && (
-                  <a href={`${API}/uploads/${o.photo}`} target="_blank">
+                {emp.photo && (
+                  <a
+                    href={`${API}/uploads/${emp.photo}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     View
                   </a>
                 )}
               </td>
 
               <td>
-                {o.signed_appointment && (
-                  <a href={`${API}/uploads/${o.signed_appointment}`} target="_blank">
+                {emp.signed_appointment && (
+                  <a
+                    href={`${API}/uploads/${emp.signed_appointment}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     View
                   </a>
                 )}
@@ -94,7 +113,6 @@ export default function AdminDashboard() {
           ))}
         </tbody>
       </table>
-
     </div>
   );
 }
